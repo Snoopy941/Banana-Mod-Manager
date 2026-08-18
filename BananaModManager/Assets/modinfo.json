@@ -1,0 +1,142 @@
+[
+  {
+    "name": "BepInEx",
+    "author": "BepInEx Team",
+    "version": "5.4.23.5",
+    "description": "The mod loader that injects plugins into Gorilla Tag.",
+    "git_path": "BepInEx/BepInEx",
+    "group": "Core",
+    "download_url": "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.5/BepInEx_win_x64_5.4.23.5.zip"
+  },
+  {
+    "name": "Utilla",
+    "author": "sirkingbinx",
+    "version": "1.7.1",
+    "description": "Base library for custom lobbies and game modes.",
+    "git_path": "sirkingbinx/Utilla",
+    "group": "Core",
+    "download_url": "https://github.com/sirkingbinx/Utilla/releases/download/1.7.1/Utilla.dll"
+  },
+  {
+    "name": "BananaHook",
+    "author": "[-=KILL MAN=-] aka RusJJ",
+    "version": "1.1.0",
+    "description": "Hooks into the game so other mods can build on it.",
+    "git_path": "RusJJ/BananaHook",
+    "group": "Libraries",
+    "download_url": "https://github.com/RusJJ/BananaHook/releases/download/1.1.0/BananaHook.zip"
+  },
+  {
+    "name": "Bepinject",
+    "author": "Auros",
+    "version": "1.0.1",
+    "description": "Dependency injection framework for BepInEx mods.",
+    "dependencies": [
+      "Extenject"
+    ],
+    "install_location": "BepInEx/plugins",
+    "git_path": "Auros/Bepinject",
+    "group": "Libraries",
+    "download_url": "https://github.com/Auros/Bepinject/releases/download/1.0.1/Bepinject-Auros.zip"
+  },
+  {
+    "name": "Computer Interface",
+    "author": "Toni Macaroni",
+    "version": "1.4.6",
+    "description": "In-game computer UI library used by many mods.",
+    "dependencies": [
+      "Bepinject"
+    ],
+    "git_path": "ToniMacaroni/ComputerInterface",
+    "group": "Libraries",
+    "download_url": "https://github.com/ToniMacaroni/ComputerInterface/releases/download/1.4.6/ComputerInterface.zip"
+  },
+  {
+    "name": "Extenject",
+    "author": "svermeulen",
+    "version": "1.0.1",
+    "description": "Dependency injection framework (formerly Zenject).",
+    "install_location": "BepInEx/plugins",
+    "git_path": "Auros/Bepinject",
+    "group": "Libraries",
+    "download_url": "https://github.com/Auros/Bepinject/releases/download/1.0.1/Extenject.zip"
+  },
+  {
+    "name": "Newtonsoft.JSON",
+    "author": "James Newton-King",
+    "version": "12.0.3",
+    "description": "JSON serialization library used by many mods.",
+    "git_path": "legoandmars/Newtonsoft.Json",
+    "group": "Libraries",
+    "download_url": "https://github.com/legoandmars/Newtonsoft.Json/releases/download/12.0.3/Newtonsoft.Json-12.0.3.zip"
+  },
+  {
+    "name": "Gorilla Cosmetics",
+    "author": "Bobbie",
+    "version": "2.1.1",
+    "description": "Custom cosmetics, hats, and materials for your monke.",
+    "dependencies": [
+      "Newtonsoft.JSON"
+    ],
+    "git_path": "legoandmars/GorillaCosmetics",
+    "group": "Cosmetic",
+    "download_url": "https://github.com/legoandmars/GorillaCosmetics/releases/download/v2.1.1/GorillaCosmetics-2.1.1.zip"
+  },
+  {
+    "name": "Monke Map Loader",
+    "author": "Vadix",
+    "version": "1.1.0",
+    "description": "Loads custom maps into the game.",
+    "dependencies": [
+      "Newtonsoft.JSON",
+      "Utilla",
+      "Computer Interface"
+    ],
+    "git_path": "Vadix88/MonkeMapLoader",
+    "group": "Gameplay",
+    "download_url": "https://github.com/Vadix88/MonkeMapLoader/releases/download/v1.1.0/MonkeMapLoader-1.1.0.zip"
+  },
+  {
+    "name": "Practice Mod",
+    "author": "Graic",
+    "version": "1.1.0",
+    "description": "No-clip, checkpoints, and other practice tools.",
+    "dependencies": [
+      "Utilla",
+      "Computer Interface"
+    ],
+    "git_path": "Graicc/PracticeMod",
+    "group": "Gameplay",
+    "download_url": "https://github.com/Graicc/PracticeMod/releases/download/v1.1.0/PracticeMod-v1.1.0.zip"
+  },
+  {
+    "name": "Space Monke",
+    "author": "Bobbie",
+    "version": "1.2.0",
+    "description": "Messes with gravity so you can float around.",
+    "dependencies": [
+      "Utilla"
+    ],
+    "git_path": "legoandmars/SpaceMonke",
+    "group": "Gameplay",
+    "download_url": "https://github.com/legoandmars/SpaceMonke/releases/download/v1.2.0/SpaceMonke-1.2.0.zip"
+  },
+  {
+    "name": "BrokenController",
+    "author": "A Haunted Army",
+    "version": "1.0.1",
+    "description": "Controller tweaks and quality-of-life options.",
+    "git_path": "AHauntedArmy/BrokenController",
+    "group": "Tweaks / Tools",
+    "download_url": "https://github.com/AHauntedArmy/BrokenController/releases/download/1.0.1/BrokenController-v1.0.1.zip"
+  },
+  {
+    "name": "NoAmbient",
+    "author": "[-=KILL MAN=-] aka RusJJ",
+    "version": "1.1.0",
+    "description": "Removes ambient background sounds.",
+    "git_path": "RusJJ/NoAmbient",
+    "group": "Tweaks / Tools",
+    "download_url": "https://github.com/RusJJ/NoAmbient/releases/download/1.1.0/NoAmbient.zip"
+  }
+]

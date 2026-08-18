@@ -1,0 +1,107 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="BananaModManager.MainWindow"
+        Title="Banana Mod Manager"
+        MinWidth="600" MinHeight="400"
+        Icon="avares://BananaModManager/Assets/mmm-ico.png"
+        Name="MainWin"
+        >
+
+        
+        <Grid Name="MainGrid">
+                <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" 
+                          Text="Banana Mod Manager" 
+                          Name="TitleText"
+                          FontSize="24" 
+                          FontWeight="Bold"
+                          HorizontalAlignment="Center" 
+                          Margin="10,15,10,10" 
+                          Foreground="DarkBlue" />
+                <Image Grid.Row="0" 
+                       Source="Assets/mmm-ico.png"
+                       Height="38"
+                       Width="38"
+                       Margin="0, 0, 280, 0"></Image>
+                <Button Grid.Row="0" Name="DropDownBtn" 
+                        Margin="10"
+                        Background="Transparent"
+                        Click="ShowDropdown_Click">
+                        <Image Name="MenuImage"
+                               Height="26"
+                               Width="26"/>
+                        <Button.ContextMenu>
+                                <ContextMenu x:Name="BtnDropdown">
+                                        <MenuItem Header="Install From Disk" Click="InstallFromDiskBtn_OnClick"/>
+                                        <MenuItem Header="Change Theme" Click="SwitchTheme"/>
+                                        <MenuItem Header="Mods Folder" Click="OpenModsFolder_OnClick"/>
+                                        <MenuItem Header="Game Folder" Click="OpenGamePath_OnClick"/>
+                                        <MenuItem Header="Launch Game(Steam Only)" Click="LaunchBtn_OnClick"/>
+                                        <MenuItem Name="DisableEnable" Click="DisableAll_OnClick"/>
+                                        <MenuItem Header="Reset Game Path" Click="ResetGamePath_OnClick"/>
+                                        <MenuItem Header="Config Editor" Click="Config_OnClick"/>
+                                        <!--<MenuItem Header="Install All Mods" Click="InstallAll"/>-->
+                                </ContextMenu>
+                        </Button.ContextMenu>
+                </Button>
+                <ProgressBar Grid.Row="1"
+                             Name="ProgressBarAtStart"
+                             Minimum="0"
+                             Maximum="100"
+                             Height="20"
+                             Width="300"
+                             IsVisible="False"/>
+                <Border Grid.Row="1" 
+                        BorderThickness="2"
+                        CornerRadius="10" 
+                        Margin="10"
+                        Name="ModsThingy">
+                        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      Padding="8">
+                                <StackPanel Spacing="8">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                                <TextBox Grid.Column="0"
+                                                         Name="SearchBox"
+                                                         Watermark="Search mods..."
+                                                         TextChanged="SearchBox_OnTextChanged" />
+                                                <ComboBox Grid.Column="1"
+                                                          Width="150"
+                                                          Margin="6, 0, 0, 0"
+                                                          SelectedIndex="0"
+                                                          SelectionChanged="SortBox_OnSelectionChanged"
+                                                          Name="SortBox">
+                                                        <ComboBoxItem Content="Group" />
+                                                        <ComboBoxItem Content="Alphabetical (A-Z)" />
+                                                        <ComboBoxItem Content="Author" />
+                                                </ComboBox>
+                                        </Grid>
+                                        <ItemsControl Name="ItemControl0" Margin="0, 0, 0, 0" Padding="0, 0, 0, 35">
+                                                <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                                <StackPanel Spacing="6" />
+                                                        </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                        </ItemsControl>
+                                </StackPanel>
+                        </ScrollViewer>
+                </Border>
+                <Border Grid.Row="2" 
+                        Name="MsgBox0Border"
+                        Padding="10,5"
+                        BorderThickness="0,1,0,0"
+                        BorderBrush="Gray">
+                        <TextBlock Name="MessageBox0" 
+                                  Text="Ready" 
+                                  FontSize="12"
+                                  VerticalAlignment="Center" />
+                </Border>
+        </Grid>
+</Window>
