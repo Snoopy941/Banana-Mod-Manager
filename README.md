@@ -48,19 +48,6 @@ dotnet build
 ./build.ps1
 ```
 
-## Contributing
-
-Pull requests are welcome! If you find a bug or have an idea, open an [issue](https://github.com/Snoopy941/Banana-Mod-Manager/issues).
-
-## Credits
-
-This project is a fork of [MonkeModManager](https://github.com/arielthemonke/MonkeModManager) by [arielthemonke](https://github.com/arielthemonke).
-
-- **arielthemonke** — original development
-- **Toast Concern** — ideas + [#2](https://github.com/arielthemonke/MonkeModManager/pull/2)
-- **Kurplunk** — [#3](https://github.com/arielthemonke/MonkeModManager/pull/3)
-- **Google Fonts** — icons (licensed under the [Apache 2.0 License](https://www.apache.org/licenses/LICENSE-2.0.txt))
-
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
