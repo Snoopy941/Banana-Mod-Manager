@@ -28,6 +28,19 @@ namespace BananaModManager;
 public partial class MainWindow : Window
 {
     #region Properties
+    // Discord Rich Presence. The app name Discord shows is YOUR Discord
+    // application's name — the ID below is the original "MonkeModManager"
+    // app, which is why it says "Monke" instead of "Banana". Create your own
+    // app at https://discord.com/developers/applications, paste its
+    // Application ID here, upload your icon as an asset, and rebuild.
+    private const string DiscordApplicationId = "1389965977705513010";
+    private const string DiscordLargeImageKey = "mmm_ico";
+
+    // The Pastebin control file. The manager shows its message + version
+    // once per new message, and offers an update link when a newer version
+    // is available.
+    private const string PasteUrl = "https://pastebin.com/raw/1dqkcu1B";
+    private const string CurrentVersion = "1.2";
     public List<Mod> Mods { get; } = new();
     private string gamePath;
     private string pluginsPath;
@@ -110,7 +123,7 @@ public partial class MainWindow : Window
         }
         pluginsPath = Path.Combine(gamePath, "BepInEx", "plugins");
 
-        var (updateAvailable, newVersion) = await IsUpdateAvailable(new Version(1, 4, 1));
+        var (updateAvailable, newVersion) = await IsUpdateAvailable(Version.Parse(CurrentVersion));
 
         if (updateAvailable)
         {
@@ -124,6 +137,7 @@ public partial class MainWindow : Window
         await LoadModsFromTheNewGitHubRepoAsync();
         MakeNotificationThing();
         SendNeededMesages();
+        await CheckDeveloperMessageAsync();
         MenuImage.Source = new Bitmap(AssetLoader.Open(new Uri("avares://BananaModManager/Assets/menu-google.png")));
     }
 
@@ -265,7 +279,7 @@ public partial class MainWindow : Window
     }
     void InitForRPC()
     {
-        client = new DiscordRpcClient("1389965977705513010");
+        client = new DiscordRpcClient(DiscordApplicationId);
 
         client.OnReady += (sender, e) =>
         {
@@ -284,7 +298,7 @@ public partial class MainWindow : Window
                 State = "Installing Mods",
                 Assets = new Assets
                 {
-                    LargeImageKey = "mmm_ico",
+                    LargeImageKey = DiscordLargeImageKey,
                 }
             });
             Console.WriteLine($"[DiscordRPC] - RPC Set");
@@ -1242,7 +1256,10 @@ public partial class MainWindow : Window
                 var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 var trackingFile = Path.Combine(appData, "BananaModManager", $".{mod.Name}_installed.txt");
                 await File.WriteAllLinesAsync(trackingFile, installedFiles);
-                
+
+                if (string.Equals(mod.Name, "BepInEx", StringComparison.OrdinalIgnoreCase))
+                    EnsureBepInExFolderStructure();
+
                 if (File.Exists(downloadPath))
                 {
                     File.Delete(downloadPath);
@@ -1495,7 +1512,8 @@ public partial class MainWindow : Window
                 
                 MessageBox0.Text = "Extracting BepInEx please wait!!!!!";
                 await ExtractBepInEx(tempPath);
-                
+                EnsureBepInExFolderStructure();
+
                 File.Delete(tempPath);
                 await fixBepInExConfig();
                 await FixUEConfig();
@@ -1505,6 +1523,7 @@ public partial class MainWindow : Window
             }
             
             MessageBox0.Text = "BepInEx already installed.";
+            EnsureBepInExFolderStructure();
             return true;
         }
         catch (Exception ex)
@@ -1540,6 +1559,17 @@ public partial class MainWindow : Window
         {
             throw new Exception($"couldnr extract {ex.Message}");
         }
+    }
+
+    // The official BepInEx zip only ships BepInEx/core plus the doorstop
+    // files, so create the folders (plugins, config) it expects — otherwise
+    // "Open Mods Folder" points at a folder that doesn't exist until the game
+    // has been launched once.
+    private void EnsureBepInExFolderStructure()
+    {
+        Directory.CreateDirectory(Path.Combine(gamePath, "BepInEx"));
+        Directory.CreateDirectory(Path.Combine(gamePath, "BepInEx", "plugins"));
+        Directory.CreateDirectory(Path.Combine(gamePath, "BepInEx", "config"));
     }
     private async Task InstallFromDisk(string modPath = null)
     {
@@ -1941,6 +1971,205 @@ public partial class MainWindow : Window
         var owner = (Application.Current.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
         await dialog.ShowDialog(owner);
     }
+
+    /// <summary>
+    /// Fetches the Pastebin control file and shows its message once per new
+    /// message (the last-seen message is stored in the config).
+    /// </summary>
+    private async Task CheckDeveloperMessageAsync()
+    {
+        try
+        {
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+            var text = await client.GetStringAsync(PasteUrl);
+
+            string message = null;
+            string latestVersion = null;
+
+            foreach (var rawLine in text.Split('\n'))
+            {
+                var line = rawLine.Trim();
+                if (line.Length == 0 || line.StartsWith("#"))
+                    continue;
+
+                var eq = line.IndexOf('=');
+                if (eq <= 0)
+                    continue;
+
+                var key = line[..eq].Trim();
+                var value = line[(eq + 1)..].Trim();
+
+                if (key.Equals("message", StringComparison.OrdinalIgnoreCase))
+                    message = value;
+                else if (key.Equals("version", StringComparison.OrdinalIgnoreCase))
+                    latestVersion = value;
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
+            var configPath = GetConfigPath();
+            var config = File.Exists(configPath)
+                ? JsonConvert.DeserializeObject<Config>(await File.ReadAllTextAsync(configPath))
+                : new Config();
+
+            if (config?.LastMessageShown == message)
+                return; // already shown this message - don't pop again
+
+            if (config == null)
+                config = new Config();
+
+            config.LastMessageShown = message;
+            await File.WriteAllTextAsync(configPath, JsonConvert.SerializeObject(config, Formatting.Indented));
+
+            var updateAvailable = Version.TryParse(latestVersion, out var latest) &&
+                                  Version.TryParse(CurrentVersion, out var current) &&
+                                  latest > current;
+
+            await ShowDeveloperMessageDialog(message, latestVersion ?? CurrentVersion, updateAvailable);
+        }
+        catch
+        {
+            // offline or paste unreachable - nothing to show
+        }
+    }
+
+    private async Task ShowDeveloperMessageDialog(string message, string latestVersion, bool updateAvailable)
+    {
+        var dialog = new Window
+        {
+            Title = "From the developer",
+            Width = 520,
+            MinWidth = 420,
+            SizeToContent = SizeToContent.Height,
+            WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            CanResize = false,
+            Background = getBGForTheme()
+        };
+
+        var root = new StackPanel
+        {
+            Margin = new Thickness(28, 24, 28, 22),
+            Spacing = 18
+        };
+
+        // Header: app icon + title
+        var header = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 12,
+            VerticalAlignment = VerticalAlignment.Center
+        };
+        try
+        {
+            header.Children.Add(new Image
+            {
+                Source = new Bitmap(AssetLoader.Open(new Uri("avares://BananaModManager/Assets/mmm-ico.png"))),
+                Width = 44,
+                Height = 44,
+                Stretch = Stretch.Uniform
+            });
+        }
+        catch
+        {
+            // icon asset missing - skip
+        }
+
+        header.Children.Add(new TextBlock
+        {
+            Text = "From the developer",
+            FontSize = 18,
+            FontWeight = FontWeight.Bold,
+            Foreground = getTextTheme(),
+            VerticalAlignment = VerticalAlignment.Center
+        });
+        root.Children.Add(header);
+
+        // Divider
+        root.Children.Add(new Border
+        {
+            Height = 1,
+            Background = GetBorderBrush()
+        });
+
+        // Message
+        root.Children.Add(new TextBlock
+        {
+            Text = message,
+            FontSize = 16,
+            FontWeight = FontWeight.SemiBold,
+            LineHeight = 23,
+            TextWrapping = TextWrapping.Wrap,
+            Foreground = getTextTheme()
+        });
+
+        // Version pill
+        root.Children.Add(new Border
+        {
+            Background = GetCardBGS(),
+            BorderBrush = GetBorderBrush(),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(14),
+            Padding = new Thickness(12, 5),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Child = new TextBlock
+            {
+                Text = $"Latest version: v{latestVersion}",
+                FontSize = 12,
+                Foreground = GetSecondaryText()
+            }
+        });
+
+        // Buttons, bottom-right
+        var buttons = new StackPanel
+        {
+            Orientation = Orientation.Horizontal,
+            Spacing = 10,
+            HorizontalAlignment = HorizontalAlignment.Right
+        };
+
+        if (updateAvailable)
+        {
+            var updateBtn = new Button
+            {
+                Content = "Update Now",
+                Background = Brushes.Green,
+                Foreground = Brushes.White,
+                CornerRadius = new CornerRadius(6),
+                Padding = new Thickness(18, 9)
+            };
+            updateBtn.Click += (_, __) =>
+            {
+                dialog.Close();
+                OpenReleasesPage();
+            };
+            buttons.Children.Add(updateBtn);
+        }
+
+        var okBtn = new Button
+        {
+            Content = "OK",
+            Background = Brush.Parse("#505050"),
+            Foreground = Brushes.White,
+            CornerRadius = new CornerRadius(6),
+            Padding = new Thickness(22, 9)
+        };
+        okBtn.Click += (_, __) => dialog.Close();
+        buttons.Children.Add(okBtn);
+
+        root.Children.Add(buttons);
+        dialog.Content = root;
+        await dialog.ShowDialog(this);
+    }
+
+    /// <summary>Opens the GitHub releases page so the user can grab the newest build.</summary>
+    private void OpenReleasesPage()
+    {
+        Process.Start(new ProcessStartInfo("https://github.com/Snoopy941/Banana-Mod-Manager/releases/latest")
+        {
+            UseShellExecute = true
+        });
+    }
     #endregion
     
     #region cant think of name
@@ -1984,6 +2213,7 @@ public partial class MainWindow : Window
     void OpenModsFolder_OnClick(object? sender, RoutedEventArgs e)
     {
         var ModsPath = Path.Combine(gamePath, "BepInEx", "plugins");
+        Directory.CreateDirectory(ModsPath);
         OpenFolder(ModsPath);
     }
 
@@ -2093,6 +2323,7 @@ public class Config
 {
     public string GamePath { get; set; }
     public Theme? Theme { get; set; }
+    public string LastMessageShown { get; set; }
 }
 
 public class ModBorderThingyForDictionary

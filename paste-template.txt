@@ -1,0 +1,9 @@
+# Banana Mod Manager - update control file
+# Copy EVERYTHING below into a new Pastebin paste, then put its RAW link in
+# PasteUrl at the top of BananaModManager/MainWindow.axaml.cs.
+# Edit this paste whenever you release a new version - the manager shows the
+# message once and offers an update when the version is newer.
+
+version=1.4.1
+url=https://github.com/Snoopy941/Banana-Mod-Manager/releases/latest/download/BananaModManager.exe
+message=Thanks for using Banana Mod Manager!
