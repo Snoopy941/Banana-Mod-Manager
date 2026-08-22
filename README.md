@@ -37,37 +37,6 @@ chmod +x BananaModManager
 ./BananaModManager
 ```
 
-## Updates (Pastebin control file)
-
-The manager is a single `BananaModManager.exe` — updates are driven by one Pastebin paste it checks on every launch.
-
-### Setup
-
-1. Create a paste at [pastebin.com](https://pastebin.com) with this format:
-
-   ```
-   version=1.4.2
-   url=https://github.com/Snoopy941/Banana-Mod-Manager/releases/latest/download/BananaModManager.exe
-   message=What's new in 1.4.2!
-   ```
-
-2. Open the paste and copy its **RAW** link (looks like `https://pastebin.com/raw/xxxxx`).
-3. Set `PasteUrl` (a constant near the top of `BananaModManager/MainWindow.axaml.cs`) to that raw link.
-4. Build with `./build.ps1`.
-
-A ready-to-paste template lives in `paste-template.txt` at the repo root.
-
-### How it works
-
-- On every launch the manager fetches the paste.
-- The `message` is shown **once per new message** (tracked in the config — it never nags twice).
-- When the paste `version` is newer than the installed one, the message dialog shows an **Update Now** button that opens the [GitHub releases page](https://github.com/Snoopy941/Banana-Mod-Manager/releases/latest).
-- Supported fields:
-  - `version` — the latest version
-  - `url` — download link for `BananaModManager.exe`
-  - `message` — one-time note shown in the manager ("what's new", announcements)
-  - `enabled` — set to `0` to stop the manager from launching entirely
-
 ## Discord Rich Presence
 
 Your Discord status is tied to a **Discord application** — the app name shown in your status comes from that application's developer page, not from this code. The current build points at the original `MonkeModManager` Discord app, which is why your status says "Monke Mod Manager" instead of "Banana Mod Manager".
